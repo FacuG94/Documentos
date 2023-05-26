@@ -1,0 +1,30 @@
+export interface Persona {
+    id_persona?:         string;
+    nombres:             string;
+    apellido_paterno:    string;
+    apellido_materno:    string;
+    tipo_documento:      number;
+    num_documento:       string;
+    nacionalidad?:        number;
+    fecha_nacimiento?:    string;
+    sexo?:                string | any;
+    correo:              string;
+    telefono?:            string;
+    es_usuario?:          boolean;
+    usuario?:             number;
+    gerencia?:            number;
+    area?:                number;
+    grupo_trabajo?:      number;
+    puesto_trabajo?:      number;
+    sucursal_rh?:         number;
+    fecha_ingreso_aunor?: string;
+    fecha_ingreso_pt?:    string;
+    fecha_cese?:          string;
+    foto?:                string;
+    empresa:             number;
+    sesion_id?:           number;
+    fecha_creacion?:      string;
+    fecha_actualizacion?: string;
+    estado?:              number;
+    eliminado?:           number;
+}

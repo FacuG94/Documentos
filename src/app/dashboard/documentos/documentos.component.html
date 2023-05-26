@@ -1,0 +1,9 @@
+<p><strong>Módulo: DOCUMENTOS</strong></p>
+<div class="border-shadow" *ngIf="!mostrar_listado">
+    <div class="w-100">
+        <datatable [options]="datatable_optiones" [data_array]="resultados" [loading]="{loading:procesando}">
+
+        </datatable>
+    </div>
+</div>
+

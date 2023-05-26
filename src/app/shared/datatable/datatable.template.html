@@ -1,0 +1,912 @@
+<!--INICIO TEMPLATE DATATABLE-->
+<div class="no-margins">
+  <!--INICIO ENCABEZADO-->
+  <!-- <header *ngIf="options_value.hide_bar_header === false; else soloborde">
+    <span class="widget-icon"> <i class="fa fa-table" aria-hidden="true"></i> </span>
+    <h2>{{options_value.title}}</h2>
+  </header>
+  <ng-template #soloborde>
+    <div style="border-bottom: 1px solid rgb(240, 10, 10);padding: 0;"></div>
+  </ng-template> -->
+
+  <mgr-loading [loaded]="!loading.loading"></mgr-loading>
+  <!--FINAL SPINNER (LOADER)-->
+  <!--INICIO MENU SUPERIOR-->
+  <div class="after-header-table pt-3"
+    *ngIf="(options_value.show_after_header_table  && !loading.loading) || (filtering && !loading.loading)">
+    <div class="d-flex justify-content-between flex-wrap">
+      <div class="mb-3">
+        <div class="d-flex">
+          <div *ngIf="options_value.show_title" class="title-table">{{options_value.title}}</div>
+          <!--INICIO CAMPO DE BUSQUEDA-->
+          <div *ngIf="!options_value.search_right && options_value.show_search_field" style="min-width: 350px;margin-right: 1rem;">
+            <div class="input-group">
+              <span *ngIf="!search_word; else btneliminar" class="input-group-text bg-white pe-1 border-end-0" id="addon1">
+                <i class="fa fa-search" aria-hidden="true"></i>
+              </span>
+              <ng-template #btneliminar>
+                <button (click)="limpiar_filtro()" class="btn btn-sm btn-outline-secondary text-danger" type="button"
+                  id="addon1">
+                  <i class="fas fa-eraser" aria-hidden="true"></i>
+                </button>
+              </ng-template>
+              <input [(ngModel)]="search_word" (keyup)="filter_search()" #search_input="ngModel" type="text"
+                class="form-control border-start-0 border-0 shadow-none input-search" placeholder="Buscar..." aria-label="Username"
+                aria-describedby="addon1">
+            </div>
+          </div>
+          <!--FINAL CAMPO DE BUSQUEDA-->
+          <!-- MOSTRAR CAMPOS DROPDOWN -->
+          <ng-content select="[slotFiltros]"></ng-content>
+
+          <!-- PARA QUE ES ESTE SELECT ?????  -->
+          <div *ngIf="options_value.combobox_show" class="col-md-4 ">
+            <select (change)="combobox_event($event.target.value)" class="form-control input-xs">
+              <option *ngFor="let item of options_value.combobox_show_array" [value]="item.codigo">
+                {{item.descripcion}}
+              </option>
+            </select>
+          </div>
+
+        </div>
+      </div>
+      <div class="d-flex justify-content-end">
+        <div class="pull-right">
+          <!--INICIO CAMBIO DE PAGINACION-->
+          <div style="display: flex;">
+          <button *ngIf="options_value.full_data_reportes && options_value.full_data_reportes.mostrar"
+            (click)="to_excel_full()"
+            [disabled]="!options_value.full_data_reportes.loading_excel || resultados.length<1 || excelService.loading_full"
+            type="button" class="btn btn-labeled bg-color-grey txt-color-green btn-xs">
+            <span class="btn-label-xs"><i
+                [ngClass]="{'fas': true, 'fa-file-excel': options_value.full_data_reportes.loading_excel || !excelService.loading_full, 'fa-spinner fa-spin': !options_value.full_data_reportes.loading_excel || excelService.loading_full}"
+                aria-hidden="true"></i></span>Reporte completo
+          </button>
+          <button *ngIf="options_value.show_toexportar" (click)="to_excel()"
+            [disabled]="resultados.length<1 || excelService.loading" type="button" class="btn btn-warning btn-sm">
+            <span class="btn-label-xs"><i class="fa fa-download" aria-hidden="true"></i></span>Exportar
+          </button>
+          <button *ngIf="options_value.show_toimportar" style="margin-left: 10px;"
+            [disabled]="resultados.length<1" type="button" class="btn btn-warning btn-sm">
+            <span class="btn-label-xs"><i class="fa fa-upload" aria-hidden="true"></i> </span>Importar
+          </button>
+          <!--INICIO CAMPO DE BUSQUEDA DERECHA-->
+
+          <div *ngIf="options_value.search_right && options_value.show_search_field" style="min-width: 350px;margin-right: 1rem;">
+            <div class="input-group">
+              <span *ngIf="!search_word; else btneliminar" class="input-group-text bg-white pe-1 border-end-0" id="addon1">
+                <i class="fa fa-search" aria-hidden="true"></i>
+              </span>
+              <ng-template #btneliminar>
+                <button (click)="limpiar_filtro()" class="btn btn-sm btn-outline-secondary text-danger" type="button"
+                  id="addon1">
+                  <i class="fas fa-eraser" aria-hidden="true"></i>
+                </button>
+              </ng-template>
+              <input [(ngModel)]="search_word" (keyup)="filter_search()" #search_input="ngModel" type="text"
+                class="form-control border-start-0 border-0 shadow-none input-search" placeholder="Buscar..." aria-label="Username"
+                aria-describedby="addon1">
+            </div>
+          </div>
+          <ng-content select="[slotFiltrosDerecha]"></ng-content>
+          <!-- BTN MODAL CREAR-EDITAR -->
+          <ng-content select="[slotExportar]"></ng-content>
+          <ng-content select="[slotImportar]"></ng-content>
+          <ng-content select="[slotModalCreate]"></ng-content>
+
+          <button *ngIf="options_value.show_toexcel" (click)="to_excel()"
+            [disabled]="resultados.length<1 || excelService.loading" type="button"
+            class="btn-export btn-labeled bg-color-grey txt-color-green btn-xs">
+            <span class="btn-label-xs"><i class="fas fa-file-excel" aria-hidden="true"></i></span>Excel
+          </button>
+          <button *ngIf="options_value.full_data_reportes && options_value.full_data_reportes.mostrar"
+            (click)="to_pdf_full()" type="button"
+            [disabled]="!options_value.full_data_reportes.loading_pdf || resultados.length<1"
+            class="btn btn-labeled bg-color-grey txt-color-red btn-xs">
+            <span class="btn-label-xs"><i
+                [ngClass]="{'fas': true, 'fa-file-pdf': options_value.full_data_reportes.loading_pdf, 'fa-spinner fa-spin': !options_value.full_data_reportes.loading_pdf}"
+                aria-hidden="true"></i></span>Reporte completo
+          </button>
+          <button *ngIf="options_value.show_topdf" (click)="to_pdf()" type="button" [disabled]="resultados.length<1"
+            class="btn-export btn-labeled bg-color-grey txt-color-red btn-xs">
+            <span class="btn-label-xs"><i class="fas fa-file-pdf" aria-hidden="true"></i></span>PDF
+          </button>
+        </div>
+          <!--FINAL CAMBIO DE PAGINACION-->
+        </div>
+      </div>
+    </div>
+  </div>
+  <!--FINAL MENU SUPERIOR-->
+  <!--INICIO TEXTO VACIO-->
+  <!-- <div *ngIf="(resultados.length==0 && !filtering && !loading.loading) && options_value.empty_text.length > 0">
+    <h5 class="text-center text-info">{{options_value.empty_text}}</h5>
+    <br>
+  </div> -->
+  <!--FINAL TEXTO VACIO-->
+  <!--INICIO TEXTO CLAVE NO ENCONTRADO-->
+  <!-- <div *ngIf="resultados.length==0 && filtering && !loading.loading">
+    <h5 class="text-center text-info">Palabra clave no encontrada</h5>
+    <br>
+  </div> -->
+  <!--FINAL TEXTO CLAVE NO ENCONTRADO-->
+  <ng-container>
+    <div [class.not-min-height]="!options_value.empty_text" class="animated fadeIn"
+      [class.mgr-pagination-external]="options_value.pagination_external && !options_value.pagination_external_non_style">
+      <!-- table-responsive -->
+      <div class="{{options_value.customClass}}" [class.table-wrapper-scroll-y]="options_value.responsive_y">
+        <div id="scrollTest" class="bg-white">
+          <mdz-double-scroll>
+            <!--INICIO TABLA-->
+
+
+            <div class="table-responsive overflow-auto p-0">
+
+              <table aria-hidden="true" [id]="options_value.id" class="table no-margins mgr-dt">
+                <!--INICIO ENCABEZADO DE TABLA-->
+                <thead>
+                  <!-- RADIO -->
+                  <tr *ngIf="options_value.columns_headers_radio" class="smart-form mrg-radio">
+                    <td *ngFor="let header of options_value.columns;let i = index" class="text-center">
+                      <div>
+                        <label class="radio">
+                          <input (change)="radio_column_event($event.target.checked, i, options_value.columns[i])"
+                            type="radio" name="radio-inline" checked="checked"><i aria-hidden="true"></i>
+                        </label>
+                      </div>
+                    </td>
+                  </tr>
+                  <!-- CHECKBOX -->
+                  <tr *ngIf="options_value.columns_headers_checkbox" class="mrg-checkbox">
+                    <td *ngIf="options_value.checkbox_event"></td>
+                    <td *ngFor="let header of options_value.columns;let i = index" class="text-center">
+                      <div *ngIf="options_value.columns_headers_checkbox_event[i]" class="checkbox">
+                        <label class="text-center">
+                          <input (change)="checkbox_colum_event($event.target.checked, i, options_value.columns[i])"
+                            type="checkbox" class="checkbox style-0" [disabled]="options_value.disable_checkbox" />
+                          <span></span>
+                        </label>
+                      </div>
+                    </td>
+                    <td *ngIf="options_value.options.puntos || options_value.options.view || options_value.options.edit || options_value.options.delete"
+                      colspan="999"></td>
+                  </tr>
+                  <tr>
+                    <th scope="col" *ngIf="options_value.checkbox_event" class="check-header text-center">
+                      <div class="checkbox">
+                        <label class="text-center">
+                          <input (change)="checkbox_select_all($event.target.checked)" type="checkbox"
+                            class="checkbox style-0" [disabled]="options_value.disable_checkbox" /><span></span>
+                        </label>
+                      </div>
+                    </th>
+
+                    <!-- SHOW CHILDRENS -->
+                    <ng-container *ngIf="options_value.columns_child_active">
+                      <th scope="col"  class="no-select text-nowrap text-center td-btn-collapse"></th>
+                      <th *ngIf="options_value.columns_headers_child_names.length>1" class="td-btn-collapse"> </th>
+                    </ng-container>
+
+                    <!-- INDEX -->
+                    <th scope="col" *ngIf="options_value.show_number_elements"
+                      class="no-select text-nowrap text-center width80">#</th>
+                    <!-- HEADER COLUMS DATA -->
+                    <ng-container *ngFor="let header of options_value.columns_headers;let i = index">
+                      <th *ngIf="header.show===true" scope="col" (click)="sort_column(i)"
+                        class="no-select sort-header text-nowrap" [ngClass]="header.classname"
+                        [title]="header.label">
+                        <em *ngIf="header.icon" [class]="header.icon"></em>
+                        {{ header.label }}
+                        <i aria-hidden="true" *ngIf="!options_value.hide_sort" class="fa" [ngClass]="{
+                                          'fa-arrow-up':ascendent && order==options_value.columns[i],
+                                          'fa-arrow-down':!ascendent && order==options_value.columns[i],
+                                          'fa-sort':order!=options_value.columns[i]
+                                      }" style="font-size: 10px;">
+                        </i>
+                      </th>
+                    </ng-container>
+                    <th scope="col"
+                      *ngIf="options_value.options.puntos || options_value.options.view || options_value.options.edit || options_value.options.delete || options_value.options.word || options_value.options.excel"
+                      class="no-select text-center text-nowrap" style="width:1%;" colspan="3">
+                      {{options_value.options_header}}
+                    </th>
+                    <!--este titulo Acciones solo se muestra para el cron modal-->
+                    <!-- <th scope="col" *ngIf="options_value.options.stop && options_value.options.play"
+                      class="no-select text-center text-nowrap" style="width:1%;" colspan="999">
+                      {{options_value.options_header}}
+                    </th> -->
+
+                  </tr>
+                </thead>
+                <!--FINAL ENCABEZADO DE TABLA-->
+                <!--INICIO ENCABEZADO DE CUERPO-->
+                <tbody class="bg-white">
+                  <tr *ngIf="(resultados.length==0 && !filtering && !loading.loading) && options_value.empty_text.length > 0">
+                    <td colspan="100%">
+                      <h5 class="text-center text-info">{{options_value.empty_text}}</h5>
+                    </td>
+                  </tr>
+                  <tr *ngIf="resultados.length==0 && filtering && !loading.loading">
+                    <td colspan="100%">
+                        <h5 class="text-center text-info">Palabra clave no encontrada</h5>
+                    </td>
+                  </tr>
+                  <ng-template ngFor let-x [ngForOf]="displaying" let-i="index">
+                    <tr class="mgr-hover-row"
+                      [ngClass]="{'mgr-clicked-row': (requestOffsetLeft -1 + i )==show_clicked, 'mgr-row-marked': options_value.row_marked!=null && resultados[requestOffsetLeft -1 + i][options_value.row_marked.id_name]==options_value.row_marked.id_value}"
+                      [ngClass]="checkOpacity_child_open() == false? paint(options_value.paint_front_row, options_value.paint_last_row, i, displaying.length): display_childrens[i]?'row-active':'row-inactive'"
+                      >
+                      <!-- CHECKBOX -->
+                      <td class="text-center mgr-table" *ngIf="options_value.checkbox_event">
+                        <div class="checkbox">
+                          <label class="text-center">
+                            <input [checked]="resultados[requestOffsetLeft -1 + i].selected"
+                              (change)="checkbox_event({index:requestOffsetLeft -1 + i, value:$event.target.checked}, $event, null)"
+                              type="checkbox" class="checkbox style-0" [disabled]="options_value.disable_checkbox" />
+                            <span></span>
+                          </label>
+                        </div>
+                      </td>
+                      <!-- SHOW BTN CHILDREN -->
+                      <ng-container *ngIf="options_value.columns_child_active">
+                        <td (click)="collapseChild(i)" class="mgr-table text-center td-btn-collapse arrow-collapse">
+                              <i *ngIf="!display_childrens[i] && resultados[requestOffsetLeft -1+i][options_value.columns_headers_child_names[0]].length>0"
+                                class="fa-sharp fa-solid fa-chevron-right"></i>
+                              <i *ngIf="display_childrens[i] && resultados[requestOffsetLeft -1+i][options_value.columns_headers_child_names[0]].length>0" class="fa-solid fa-chevron-down"></i>
+                        </td>
+                      </ng-container>
+                      <!-- td vacio para alinear a los nietos  -->
+                      <td *ngIf="options_value.columns_child_active && options_value.columns_headers_child_names.length>1" class="td-btn-collapse"> </td>
+                      <!-- INDEX -->
+                      <td *ngIf="options_value.show_number_elements" class="mgr-table text-center width80px">
+                        <span>{{i+1}}</span>
+                      </td>
+
+                      <ng-container *ngFor="let column of options_value.columns_headers; let j = index">
+                        <td *ngIf="column.show===true"
+                          [style.width]="options_value.width_columns && options_value.width_columns[j]"
+                          [ngClass]="column.classnamebody"
+                          >
+                          <!-- PIPES DATA -->
+                          <ng-container [ngSwitch]="column.pipe">
+                            <div *ngSwitchCase="'estado'" class="d-flex gap-3 align-items-center">
+                              <span *ngIf="resultados[requestOffsetLeft -1 + i][column.key]==1 || resultados[requestOffsetLeft -1 + i][column.key]=='1';else noActivo"
+                                class="text-bg-activo">Activo</span>
+                              <ng-template #noActivo>
+                                <span class="text-bg-inactivo">Inactivo</span>
+                              </ng-template>
+                              <div class="form-check form-switch">
+                                <input class="form-check-input" type="checkbox"  id="{{requestOffsetLeft -1 + i}}"
+                                (change)="onCheckboxChangeEstado($event, requestOffsetLeft -1 + i)"
+                                [checked]="resultados[requestOffsetLeft -1 + i][column.key]==1" role="switch">
+                              </div>
+                            </div>
+                              <div *ngSwitchCase="'riesgos'" class="riesgo muy-alto">
+                                {{resultados[requestOffsetLeft -1 + i][column.key]}}
+                              </div>
+                              <div *ngSwitchCase="'color_riesgo_inicial'" [innerHtml]="resultados[requestOffsetLeft -1 + i] | dinamico:column.pipe"></div>
+                              <div *ngSwitchCase="'color_riesgo_residual'" [innerHtml]="resultados[requestOffsetLeft -1 + i] | dinamico:column.pipe"></div>
+
+                              <div *ngSwitchCase="'control_especifico'" [innerHtml]="resultados[requestOffsetLeft -1 + i] | dinamico:column.pipe"></div>
+
+                              <div *ngSwitchCase="'estado_iper'" [innerHtml]="resultados[requestOffsetLeft -1 + i] | dinamico:column.pipe"></div>
+                              <div *ngSwitchCase="'estado_actividad'" [innerHtml]="resultados[requestOffsetLeft -1 + i] | dinamico:column.pipe"></div>
+
+                              <div *ngSwitchCase="'tipo_recursos'">
+                                {{resultados[requestOffsetLeft -1 + i] | dinamico:column.pipe}}
+                              </div>
+                              <div *ngSwitchCase="'identificador_recursos'">
+                                {{resultados[requestOffsetLeft -1 + i] | dinamico:column.pipe}}
+                              </div>
+                              <div *ngSwitchCase="'inputTypeTextWithEvents'">
+                                <input type="text" class="form-control" [value]="resultados[requestOffsetLeft -1 + i][column.key]"
+                                 (blur)="inputBlur($event,resultados[requestOffsetLeft -1 + i])"
+                                 (focus)="inputFocus($event,resultados[requestOffsetLeft -1 + i])"
+                                 (keyup.enter)="inputEnter($event,resultados[requestOffsetLeft -1 + i])"
+                                 >
+                              </div>
+                              <div *ngSwitchCase="'inputTypeTextWithoutEvents'">
+                                <input type="text" class="form-control" [value]="resultados[requestOffsetLeft -1 + i][column.key]"
+                                 (blur)="inputChange($event,resultados[requestOffsetLeft -1 + i])"
+                                 >
+                              </div>
+                              <div *ngSwitchCase="'inputTypeText'">
+                                <input type="text" class="form-control" [value]="resultados[requestOffsetLeft -1 + i][column.key]" (blur)="inputChange($event,resultados[requestOffsetLeft -1 + i])">
+                              </div>
+                              <div *ngSwitchCase="'evaluacion_nivel'">
+                                {{resultados[requestOffsetLeft -1 + i] | dinamico:column.pipe}}
+                              </div>
+                              <ng-container *ngSwitchCase="'revisiones'" >
+                                <!-- informativo por fecha de revisiones -->
+                                 <span *ngIf="resultados[requestOffsetLeft -1 + i][column.key]" >
+                                     <ul *ngIf="resultados[requestOffsetLeft -1 + i][column.key]" style="list-style: none;margin-top: initial;
+                                     margin-bottom: initial;">
+                                       <li *ngFor="let fechas of resultados[requestOffsetLeft -1 + i][column.key]" >
+                                         <span (click)="event_child('REVISION',fechas)">{{fechas.fecha | date:'dd/MM/yyyy'}} <i class="fa-solid fa-circle-info" aria-hidden="true"></i></span>
+                                       </li>
+                                   </ul>
+                                 </span>
+                             </ng-container>
+                              <div *ngSwitchCase="'evaluacion_resultado_cantidad'">
+                                <div class="evaluacion-resultado">
+                                  {{resultados[requestOffsetLeft -1 + i].cantidad}}
+                                </div>
+                              </div>
+                            <ng-container *ngSwitchDefault>
+                              <div [innerHTML]="resultados[requestOffsetLeft -1 + i][column.key] | dinamico:column.pipe"></div>
+                              <!-- {{resultados[requestOffsetLeft -1 + i][column.key]}} -->
+                            </ng-container>
+                          </ng-container>
+
+                          <!--
+                            ESTOY HAY QUE PONERLO MIENTRAS LO VAYAMOS NECESITANDO
+
+                            <div [ngClass]="{ 'text-envolvente': options_value.wrap_column && options_value.wrap_column[j]
+                                      }">
+                            <a [title]="options_value.title_td[j] ? (resultados[requestOffsetLeft -1 + i][column] | dinamico:options_value.pipes[j]) : ''"
+                              [ngClass]="options_value.columns_style_body[j]"
+                              (click)="column_event(requestOffsetLeft -1 + i,options_value.columns[j], $event)"
+                              *ngIf="options_value.columns_events && options_value.columns_events[j]">
+                              {{
+                              resultados[requestOffsetLeft -1 + i][column.key] | dinamico:options_value.pipes[j] }}
+
+                            </a>
+                            <a [title]="options_value.title_td[j] ? (resultados[requestOffsetLeft -1 + i][column] | dinamico:options_value.pipes[j]) : ''"
+                              [ngClass]="options_value.columns_style_body[j]"
+                              (click)="column_event(requestOffsetLeft -1 + i,options_value.columns[j], $event)"
+                              *ngIf="(resultados[requestOffsetLeft -1 + i] && options_value?.desmarcar_evento && options_value?.desmarcar_evento[j] && resultados[requestOffsetLeft -1 + i]?.mostrar_link); else display_control"><span
+                                style="font-weight: 500;">{{resultados[requestOffsetLeft -1 + i][column.key] |
+                                dinamico:options_value.pipes[j]}} </span></a>
+                            <ng-template #display_control>
+                              <span
+                                [title]="options_value.title_td[j] ? (resultados[requestOffsetLeft -1 + i][column.key] | dinamico:options_value.pipes[j]) : ''"
+                                *ngIf="!options_value.columns_events || !options_value.columns_events[j]"
+                                [ngClass]="options_value.columns_style_body[j]"
+                                [innerHTML]="resultados[requestOffsetLeft -1 + i][column.key] | dinamico:options_value.pipes[j]"
+                                [attr.data-content]="resultados[requestOffsetLeft -1 + i][column.key] | dinamico:options_value.pipes[j]"></span>
+                            </ng-template>
+
+
+                          </div> -->
+
+                        </td>
+                      </ng-container>
+
+                      <!-- <td title="Exportar a Excel" *ngIf="options_value.options.excel"
+                            (click)="excel_event(requestOffsetLeft -1 + i)" class="text-center table-excel mgr-table">
+                            <i class="fa fa-file-excel-o"
+                              *ngIf="!loading_excel || index_clicked != (requestOffsetLeft -1 + i)" aria-hidden="true"></i>
+                            <i class='fa fa-spinner fa-spin'
+                              *ngIf="loading_excel && index_clicked == (requestOffsetLeft -1 + i)" aria-hidden="true"></i>
+                          </td>
+                          <td title="Exportar a Word" *ngIf="options_value.options.word"
+                            (click)="word_event(requestOffsetLeft -1 + i)" class="text-center table-word mgr-table">
+                            <i class="fa fa-file-word-o"
+                              *ngIf="!loading_word || index_clicked != (requestOffsetLeft -1 + i)" aria-hidden="true"></i>
+                            <i class='fa fa-spinner fa-spin'
+                              *ngIf="loading_word && index_clicked == (requestOffsetLeft -1 + i)" aria-hidden="true"></i>
+                          </td> -->
+
+                          <!-- <td
+                            *ngIf="options_value.options.button_custom1 && options_value.options_button_custom && options_value.options_button_custom.cb1"
+                            (click)="button_custom1_event(requestOffsetLeft -1 + i,(options_value.options_button_custom.cb1.reserved && !resultados[requestOffsetLeft -1 + i].cb1))"
+                            class="text-center mgr-table" [ngClass]="options_value.options_button_custom.cb1.class"
+                            [title]="options_value.options_button_custom.cb1.title">
+                            <i *ngIf="options_value.options_button_custom.cb1.reserved==true && !resultados[requestOffsetLeft -1 + i].cb1; else bCustom1Activo"
+                              class="fa fa-minus" aria-hidden="true"></i>
+                            <ng-template #bCustom1Activo>
+                              <i [ngClass]="options_value.options_button_custom.cb1.icon"
+                                *ngIf="!loading_button_custom1 || index_clicked != (requestOffsetLeft -1 + i)"
+                                aria-hidden="true"></i>
+                              <i class='fa fa-spinner fa-spin'
+                                *ngIf="loading_button_custom1 && index_clicked == (requestOffsetLeft -1 + i)"
+                                aria-hidden="true"></i>
+                            </ng-template>
+                          </td>
+                          <td
+                            *ngIf="options_value.options.button_custom2 && options_value.options_button_custom2 && options_value.options_button_custom2.cb1"
+                            (click)="button_custom2_event(requestOffsetLeft -1 + i,(options_value.options_button_custom2.cb1.reserved && !resultados[requestOffsetLeft -1 + i].cb1))"
+                            class="text-center mgr-table" [ngClass]="options_value.options_button_custom2.cb1.class"
+                            [title]="options_value.options_button_custom2.cb1.title">
+                            <i *ngIf="options_value.options_button_custom2.cb1.reserved==true
+                                    && !resultados[requestOffsetLeft -1 + i].cb1; else bCustom1Activo" class="fa fa-minus"
+                              aria-hidden="true"></i>
+                            <ng-template #bCustom1Activo>
+                              <i [ngClass]="options_value.options_button_custom2.cb1.icon"
+                                *ngIf="!loading_button_custom2 || index_clicked != (requestOffsetLeft -1 + i)"
+                                aria-hidden="true"></i>
+                              <i class='fa fa-spinner fa-spin'
+                                *ngIf="loading_button_custom2 && index_clicked == (requestOffsetLeft -1 + i)"
+                                aria-hidden="true"></i>
+                            </ng-template>
+                          </td>
+                          <td *ngIf="options_value.options.view" (click)="view_event(requestOffsetLeft -1 + i)"
+                            class="text-center table-open mgr-table">
+                            <i class="fa fa-list" [title]="options_value.title_view?options_value.title_view:'Consultar'"
+                              *ngIf="!loading_view || index_clicked != (requestOffsetLeft -1 + i)" aria-hidden="true"></i>
+                            <i class='fa fa-spinner fa-spin'
+                              *ngIf="loading_view && index_clicked == (requestOffsetLeft -1 + i)" aria-hidden="true"></i>
+                          </td>
+                        -->
+
+                      <ng-container *ngIf="options_value.dropdown_options; else btnsNormal">
+                        <td>
+                          <div class="dropdown dropstart">
+                            <button class="btn btn-link text-dark" type="button" data-bs-toggle="dropdown" aria-expanded="false">
+                              <i class="fa-solid fa-ellipsis-vertical"></i>
+                            </button>
+                            <ul class="dropdown-menu">
+                              <li *ngFor="let item of options_value.dropdown_options">
+                                <button (click)="dropdownOption(item.action,resultados[requestOffsetLeft -1 + i])" class="dropdown-item btn-labeled" [ngClass]="item.classname" type="button">
+                                  <span class="btn-label">{{item.label}}</span>
+                                  <span *ngIf="item.iconsvg" class="btn-icon"></span>
+                                  <span *ngIf="item.iconclass" class="btn-icon"> <i  class="{{item.iconclass}}" aria-hidden="true"></i> </span>
+                                </button>
+                              </li>
+                            </ul>
+                          </div>
+                        </td>
+                      </ng-container>
+                      <ng-template #btnsNormal>
+                          <!-- edit normal -->
+                          <td
+                            *ngIf="(options_value.options.edit && options_value.reserved_check && (resultados[requestOffsetLeft -1 + i][options_value.reserved_column] == options_value.reserved_values.value_true))||(options_value.options.edit && !options_value.reserved_check)"
+                            class="text-center table-edit mgr-table">
+
+                              <button (click)="edit_event(requestOffsetLeft -1 + i, resultados[requestOffsetLeft -1 + i].canEdit)" class="btn btn-opciones btn-opciones-edit" [class]="options_value.options.delete==false?'me-4':''"
+                              [title]="'Editar'">
+                                <ng-container *ngIf="!loading_edit || index_clicked != (requestOffsetLeft -1 + i);else loadingEdit" >
+                                  <svg width="12" height="12" viewBox="0 0 12 12" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                    <path d="M8.48533 4.45739L7.54267 3.51472L1.33333 9.72406V10.6667H2.276L8.48533 4.45739ZM9.428 3.51472L10.3707 2.57206L9.428 1.62939L8.48533 2.57206L9.428 3.51472ZM2.828 12.0001H0V9.17139L8.95667 0.214722C9.08169 0.0897416 9.25122 0.0195312 9.428 0.0195312C9.60478 0.0195312 9.77432 0.0897416 9.89933 0.214722L11.7853 2.10072C11.9103 2.22574 11.9805 2.39528 11.9805 2.57206C11.9805 2.74883 11.9103 2.91837 11.7853 3.04339L2.828 12.0001Z" fill="#9A9CA1"/>
+                                  </svg>
+                                </ng-container>
+                                <ng-template #loadingEdit>
+                                  <i  class='fa fa-spinner fa-spin'aria-hidden="true"></i>
+                                </ng-template>
+                              </button>
+                          </td>
+                          <!-- view -->
+                          <td *ngIf="options_value.options.view"  class="text-center table-open mgr-table">
+                          <button (click)="view_event(requestOffsetLeft -1 + i)"
+                              [title]="options_value.title_view?options_value.title_view:'Consultar'" class="btn btn-opciones btn-opciones-consultar" [class]="options_value.options.view && !options_value.options.delete?'me-4':''">
+                              <ng-container *ngIf="!loading_view || index_clicked != (requestOffsetLeft -1 + i);else loadingView"
+                              >
+                              <i [ngClass]="options_value.icono_view?options_value.icono_view:'fa fa-eye fa-xs'" aria-hidden="true"></i>
+                            </ng-container>
+                            <ng-template #loadingView>
+                              <i class="fa fa-spinner fa-spin" aria-hidden="true"></i>
+                            </ng-template>
+                            </button>
+                        </td>
+                          <!-- DELETE NORMAL -->
+                          <td
+                            *ngIf="(options_value.options.delete && options_value.reserved_check && (resultados[requestOffsetLeft -1 + i][options_value.reserved_column] == options_value.reserved_values.value_true))||(options_value.options.delete && !options_value.reserved_check)"
+                            class="text-center table-delete mgr-table">
+                            <button (click)="delete_event(requestOffsetLeft -1 + i)"
+                            [title]="'Eliminar'" class="btn btn-opciones btn-opciones-delete me-4">
+                              <ng-container *ngIf="!loading_delete || index_clicked != (requestOffsetLeft -1 + i);else loadingDelete"
+                              >
+                              <i [ngClass]="options_value.icono_delete?options_value.icono_delete:'far fa-trash-alt fa-xs'" aria-hidden="true"></i>
+                            </ng-container>
+                            <ng-template #loadingDelete>
+                              <i class='fa fa-spinner fa-spin' aria-hidden="true"></i>
+                            </ng-template>
+
+                            </button>
+                          </td>
+                          <td  *ngIf="(options_value.options.puntos && options_value.reserved_check && (resultados[requestOffsetLeft -1 + i][options_value.reserved_column] == options_value.reserved_values.value_true))||(options_value.options.puntos && !options_value.reserved_check)">
+                            <ng-container [ngTemplateOutlet]="templateContent" [ngTemplateOutletContext]="{ $implicit:  resultados[requestOffsetLeft -1 + i], idx: i }"></ng-container>
+                          </td>
+                      </ng-template>
+
+                      <!-- // edit normal -->
+
+                      <!-- resultados[requestOffsetLeft -1 + i].canEdit -->
+
+                      <!-- edit opcional -->
+                      <!-- <td (click)="edit_event(requestOffsetLeft -1 + i)"
+                        *ngIf="options_value.icono_edit_opcional && (options_value.options.edit && (options_value.reserved_check && (resultados[requestOffsetLeft -1 + i][options_value.reserved_column] != options_value.reserved_values.value_true)))"
+                        class="text-center table-none mgr-table"><i [title]="options_value.title_edit_opcional"
+                          [style.color]="options_value.color_edit_hex" [ngClass]="options_value.icono_edit_opcional"
+                          aria-hidden="true"></i></td> -->
+                      <!-- // edit opcional -->
+
+                      <!-- <td
+                        *ngIf="!options_value.icono_edit_opcional && (options_value.options.edit && (options_value.reserved_check && (resultados[requestOffsetLeft -1 + i][options_value.reserved_column] != options_value.reserved_values.value_true)))"
+                        class="text-center table-none mgr-table"><i [title]="options_value.title_icono_edit_sin_accion"
+                          class="fa fa-minus" aria-hidden="true"></i></td>
+
+                      <td *ngIf="(options_value.options.switch)" (click)="switch_event(requestOffsetLeft -1 + i)"
+                        class="text-center table-delete mgr-table">
+                        <div><img title="Activar/Desactivar" src="assets/img/switch.svg" width="15px" height="15px"
+                            alt=""></div>
+                      </td> -->
+
+
+
+                      <!-- <td (click)="delete_event(requestOffsetLeft -1 + i)"
+                        *ngIf="options_value.icono_delete_opcional && (options_value.options.delete && (options_value.reserved_check && (resultados[requestOffsetLeft -1 + i][options_value.reserved_column] != options_value.reserved_values.value_true)))"
+                        class="text-center table-none mgr-table"><i [title]="options_value.title_delete_opcional"
+                          [style.color]="options_value.color_delete_hex" [ngClass]="options_value.icono_delete_opcional"
+                          aria-hidden="true"></i></td>
+                      <td
+                        *ngIf="!options_value.icono_delete_opcional && (options_value.options.delete && (options_value.reserved_check && (resultados[requestOffsetLeft -1 + i][options_value.reserved_column] != options_value.reserved_values.value_true)))"
+                        class="text-center table-none mgr-table"><i class="fa fa-minus" aria-hidden="true"></i></td> -->
+                    </tr>
+
+                    <!-- TR DE HIJOS -->
+                    <tr *ngIf="display_childrens[i]" class="datatable-data-child">
+                      <td></td>
+                      <td colspan="100%" class="child px-0">
+                          <div class="w-100" >
+                            <!-- table-responsive -->
+                              <table aria-hidden="true" class="table no-margins mgr-dt table-childs">
+                                <tbody >
+                                  <ng-container *ngFor="let item_child of resultados[requestOffsetLeft -1+i][options_value?.columns_headers_child_names[0]]; let i_child=index">
+                                    <tr>
+                                      <!-- bnt collapse NIETO -->
+                                      <td *ngIf="options_value.columns_headers_child_names[1]" class="td-btn-collapse">
+                                        <button (click)="expandOrCollapsebtn()" type="button" data-bs-toggle="collapse" class="btn btn-link text-dark btn-chevron"
+                                              [attr.data-bs-target]="'#collapseHijo'+i_child+'_'+i" aria-expanded="false" [attr.aria-controls]="'collapseHijo'+i_child+'_'+i">
+                                            </button>
+                                      </td>
+                                      <td class="width80px px-5px text-center">{{i+1}}.{{i_child+1}}</td>
+                                      <td *ngFor="let cell_child of options_value.columns_child" [ngClass]="cell_child.classnamebody" >
+                                        <ng-container [ngSwitch]="cell_child.pipe">
+                                          <div *ngSwitchCase="'estado'" class="d-flex gap-3 align-items-center">
+                                            <span *ngIf="item_child[cell_child.key]==1 || item_child[cell_child.key]=='1';else noActivoChild"
+                                              class="text-bg-activo">Activo</span>
+                                            <ng-template #noActivoChild>
+                                              <span class="text-bg-inactivo">Inactivo</span>
+                                            </ng-template>
+                                            <div class="form-check form-switch">
+                                              <input class="form-check-input" type="checkbox"  id="{{'i_child' + i+'-'+i_child}}"
+                                              (change)="onCheckboxChangeEstadoChild($event, item_child)"
+                                              [checked]="item_child[cell_child.key]==1" role="switch">
+                                            </div>
+                                          </div>
+                                            <div *ngSwitchCase="'riesgos'" class="riesgo muy-alto">
+                                              {{item_child[cell_child.key]}}
+                                            </div>
+                                            <ng-container *ngSwitchCase="'revisiones'" >
+                                               <!-- informativo por fecha de revisiones -->
+                                                <span *ngIf="item_child[cell_child.key]">
+                                                    <ul style="list-style: none;margin-top: initial;margin-bottom: initial;">
+                                                      <li *ngFor="let fechas of item_child[cell_child.key]" >
+                                                        <span (click)="event_child('REVISION',fechas)">{{fechas.fecha | date:'dd/MM/yyyy'}} <i class="fa-solid fa-circle-info" aria-hidden="true"></i></span>
+                                                      </li>
+                                                  </ul>
+                                                </span>
+                                            </ng-container>
+                                            <ng-container *ngSwitchCase="'lvoptions'" >
+                                              <!-- menu segun valor de lista de verificacion historica -->
+                                               <div *ngIf="item_child[cell_child.key]">
+                                                <div *ngIf="item_child.estado==1" style="display: flex;">
+                                                  <div  style="flex: 1;">
+                                                    <button (click)="event_child('EDITAR',item_child)"
+                                                    [title]="'Editar lista de verificación pendiente'" class="btn btn-opciones btn-opciones-consultar">
+                                                    <i [ngClass]="options_value.icono_view?options_value.icono_view:'fa-solid fa-pen-to-square fa-xs'" aria-hidden="true"></i>
+                                                  </button>
+                                                </div>
+                                                  <div style="flex: 1;">
+                                                    <button (click)="event_child('REVISION',item_child)"
+                                                [title]="'Aprobar lista pendiente'" class="btn btn-opciones btn-opciones-aprobar">
+                                                <i [ngClass]="options_value.icono_view?options_value.icono_view:'fa-solid fa-circle-check fa-xs'" aria-hidden="true"></i>
+                                              </button>
+                                                  </div>
+                                                  <div style="flex: 1;">
+                                                    <button (click)="event_child('DELETE',item_child)"
+                                                    [title]="'Eliminar lista pendiente'" class="btn btn-opciones btn-opciones-delete">
+                                                    <i [ngClass]="options_value.icono_view?options_value.icono_view:'fa-solid fa-trash fa-xs'" aria-hidden="true"></i>
+                                                  </button>
+                                                  </div>
+                                                </div>
+                                                <div *ngIf="item_child.estado==0" style="display: flex;">
+                                                  <div  style="flex: 1;">
+                                                    <button (click)="event_child('VER',item_child)"
+                                                    [title]="'Ver lista de verificación'" class="btn btn-opciones btn-opciones-consultar">
+                                                    <i [ngClass]="options_value.icono_view?options_value.icono_view:'fa fa-eye fa-xs'" aria-hidden="true"></i>
+                                                  </button>
+                                                </div>
+                                                </div>
+                                               </div>
+                                           </ng-container>
+                                           <ng-container *ngSwitchCase="'evaluacion_estado'">
+                                            <div class="row container-evaluacion-estado">
+                                              <div class="col-md-4">
+                                                  <div class="form-check form-check-inline container-input-estado">
+                                                      <input class="form-check-input input-radio-estado" type="radio" name="tipo_estado{{i}}{{i_child}}"
+                                                          id="inlineCheckboxC{{i}}{{i_child}}" [checked]="item_child.estado == 'C'" (change)="radioChangeEstado('C', i, i_child, item_child.estado)">
+                                                      <label class="form-check-label tipo-estado tipo-c" for="inlineCheckboxC{{i}}{{i_child}}">C</label>
+                                                  </div>
+                                              </div>
+                                              <div class="col-md-4">
+                                                  <div class="form-check form-check-inline container-input-estado">
+                                                      <input class="form-check-input input-radio-estado" type="radio" name="tipo_estado{{i}}{{i_child}}"
+                                                          id="inlineCheckboxNC{{i}}{{i_child}}" [checked]="item_child.estado == 'NC'" (change)="radioChangeEstado('NC', i, i_child, item_child.estado)">
+                                                      <label class="form-check-label tipo-estado tipo-nc" for="inlineCheckboxNC{{i}}{{i_child}}">NC</label>
+                                                  </div>
+                                              </div>
+                                              <div class="col-md-4">
+                                                  <div class="form-check form-check-inline container-input-estado">
+                                                      <input class="form-check-input input-radio-estado" type="radio" name="tipo_estado{{i}}{{i_child}}"
+                                                          id="inlineCheckboxNA{{i}}{{i_child}}" [checked]="item_child.estado == 'NA'" (change)="radioChangeEstado('NA', i, i_child, item_child.estado)">
+                                                      <label class="form-check-label tipo-estado tipo-na" for="inlineCheckboxNA{{i}}{{i_child}}">NA</label>
+                                                  </div>
+                                              </div>
+                                              </div>
+                                           </ng-container>
+                                           <ng-container *ngSwitchCase="'evaluacion_texto'">
+                                            <div [innerHTML]="item_child.evaluacion | dinamico:cell_child.pipe"></div>
+                                          </ng-container>
+                                           <ng-container *ngSwitchCase="'evaluacion_resultado_cantidad'">
+                                              <div class="evaluacion-resultado">
+                                                {{item_child.cantidad}}
+                                              </div>
+                                           </ng-container>
+                                          <ng-container *ngSwitchDefault>
+                                            <div [innerHTML]="item_child[cell_child.key] | dinamico:cell_child.pipe"></div>
+                                            <!-- {{resultados[requestOffsetLeft -1 + i][column.key]}} -->
+                                          </ng-container>
+                                        </ng-container>
+                                      </td>
+
+                                      <ng-container *ngIf="options_value.dropdown_options_child; else btnsNormal_child">
+                                        <td>
+                                          <div class="dropdown dropstart">
+                                            <button class="btn btn-link text-dark" type="button" data-bs-toggle="dropdown" aria-expanded="false">
+                                              <i class="fa-solid fa-ellipsis-vertical"></i>
+                                            </button>
+                                            <ul class="dropdown-menu">
+                                              <li *ngFor="let item of options_value.dropdown_options_child">
+                                                <button (click)="dropdownOption(item.action,resultados[requestOffsetLeft -1 + i])" class="dropdown-item btn-labeled" [ngClass]="item.classname" type="button">
+                                                  <span class="btn-label">{{item.label}}</span>
+                                                  <span *ngIf="item.iconsvg" class="btn-icon"></span>
+                                                  <span *ngIf="item.iconclass" class="btn-icon"> <i  class="{{item.iconclass}}" aria-hidden="true"></i> </span>
+                                                </button>
+                                              </li>
+                                            </ul>
+                                          </div>
+                                        </td>
+                                      </ng-container>
+                                      <ng-template #btnsNormal_child>
+                                      <!-- edit normal -->
+                                        <td>
+                                          <div *ngIf="(options_value.options_child.edit)" class="text-center table-edit">
+                                              <button (click)="event_child('EDITAR',item_child)" class="btn btn-opciones btn-opciones-edit"
+                                              [title]="'Editar'">
+                                                  <svg width="12" height="12" viewBox="0 0 12 12" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                                    <path d="M8.48533 4.45739L7.54267 3.51472L1.33333 9.72406V10.6667H2.276L8.48533 4.45739ZM9.428 3.51472L10.3707 2.57206L9.428 1.62939L8.48533 2.57206L9.428 3.51472ZM2.828 12.0001H0V9.17139L8.95667 0.214722C9.08169 0.0897416 9.25122 0.0195312 9.428 0.0195312C9.60478 0.0195312 9.77432 0.0897416 9.89933 0.214722L11.7853 2.10072C11.9103 2.22574 11.9805 2.39528 11.9805 2.57206C11.9805 2.74883 11.9103 2.91837 11.7853 3.04339L2.828 12.0001Z" fill="#9A9CA1"/>
+                                                  </svg>
+                                              </button>
+                                          </div>
+                                           <!-- view -->
+                                           <div *ngIf="options_value.options_child.view" style="display: flex;">
+                                            <div style="flex: 1;">
+                                              <button (click)="event_child('VER',item_child)"
+                                                [title]="'Consultar'" class="btn btn-opciones btn-opciones-consultar">
+                                                <i [ngClass]="options_value.icono_view?options_value.icono_view:'fa fa-eye fa-xs'" aria-hidden="true"></i>
+                                              </button>
+                                            </div>
+                                            </div>
+                                          <!-- DELETE NORMAL -->
+                                          <div *ngIf="(options_value.options_child.delete)" class="text-center table-delete">
+                                            <button (click)="event_child('ELIMINAR',item_child)"
+                                            [title]="'Eliminar'" class="btn btn-opciones btn-opciones-delete me-4">
+                                              <i [ngClass]="options_value.icono_delete?options_value.icono_delete:'far fa-trash-alt fa-xs'" aria-hidden="true"></i>
+                                            </button>
+                                          </div>
+
+                                          <!-- PUNTOS -->
+                                          <div *ngIf="(options_value.options_child.puntos)" class="text-center">
+                                            <ng-container [ngTemplateOutlet]="templateContentChild" [ngTemplateOutletContext]="{ $implicit:  item_child, idx: i }"></ng-container>
+                                          </div>
+                                        </td>
+                                      </ng-template>
+                                    </tr>
+
+
+                                    <!-- NIETOS tr -->
+                                    <tr class="collapse bg-white" [id]="'collapseHijo'+i_child+'_'+i">
+                                      <td class="middle-line"> </td>
+                                      <td colspan="100%" class="p-0">
+                                        <table aria-hidden="true" class="table no-margins mgr-dt table-childs">
+                                          <tbody >
+                                            <ng-container *ngFor="let item_nieto of item_child?.[options_value.columns_headers_child_names[1]]; let i_nieto=index">
+                                              <tr>
+                                                <td class="width80px px-5px text-center">{{i+1}}.{{i_child+1}}.{{i_nieto+1}}</td>
+
+                                                <!-- COLUMNAS NIETOS -pipes -->
+                                                <td *ngFor="let cell_nieto of options_value.columns_child_child" [ngClass]="cell_nieto.classnamebody" >
+                                                  <ng-container [ngSwitch]="cell_nieto.pipe">
+                                                    <div *ngSwitchCase="'estado'" class="d-flex gap-3 align-items-center">
+                                                      <span *ngIf="item_nieto[cell_nieto.key]==1 || item_nieto[cell_nieto.key]=='1';else noActivoChild"
+                                                        class="text-bg-activo">Activo</span>
+                                                      <ng-template #noActivoChild>
+                                                        <span class="text-bg-inactivo">Inactivo</span>
+                                                      </ng-template>
+                                                      <div class="form-check form-switch">
+                                                        <input class="form-check-input" type="checkbox"  id="{{'i_child' + i+'-'+i_child}}"
+                                                        (change)="onCheckboxChangeEstadoChild($event, item_nieto)"
+                                                        [checked]="item_nieto[cell_nieto.key]==1" role="switch">
+                                                      </div>
+                                                    </div>
+                                                      <div *ngSwitchCase="'riesgos'" class="riesgo muy-alto">
+                                                        {{item_nieto[cell_nieto.key]}}
+                                                      </div>
+                                                      <ng-container *ngSwitchCase="'revisiones'" >
+                                                         <!-- informativo por fecha de revisiones -->
+                                                          <div *ngIf="item_nieto[cell_nieto.key]">
+                                                              <ul style="list-style: none;">
+                                                                <li *ngFor="let fechas of item_nieto[cell_nieto.key]" >
+                                                                  <span (click)="event_child('REVISION',fechas)">{{fechas.fecha | date:'dd/MM/yyyy'}} <i class="fa-solid fa-circle-info" aria-hidden="true"></i></span>
+                                                                </li>
+                                                            </ul>
+                                                          </div>
+                                                      </ng-container>
+                                                      <ng-container *ngSwitchCase="'lvoptions'" >
+                                                        <!-- menu segun valor de lista de verificacion historica -->
+                                                         <div *ngIf="item_nieto[cell_nieto.key]">
+                                                          <div *ngIf="item_nieto.estado==1" style="display: flex;">
+                                                            <div  style="flex: 1;">
+                                                              <button (click)="event_child('EDITAR',item_nieto)"
+                                                              [title]="'Editar lista de verificación pendiente'" class="btn btn-opciones btn-opciones-consultar">
+                                                              <i [ngClass]="options_value.icono_view?options_value.icono_view:'fa-solid fa-pen-to-square fa-xs'" aria-hidden="true"></i>
+                                                            </button>
+                                                          </div>
+                                                            <div style="flex: 1;">
+                                                              <button (click)="event_child('REVISION',item_nieto)"
+                                                          [title]="'Aprobar lista pendiente'" class="btn btn-opciones btn-opciones-aprobar">
+                                                          <i [ngClass]="options_value.icono_view?options_value.icono_view:'fa-solid fa-circle-check fa-xs'" aria-hidden="true"></i>
+                                                        </button>
+                                                            </div>
+                                                            <div style="flex: 1;">
+                                                              <button (click)="event_child('DELETE',item_nieto)"
+                                                              [title]="'Eliminar lista pendiente'" class="btn btn-opciones btn-opciones-delete">
+                                                              <i [ngClass]="options_value.icono_view?options_value.icono_view:'fa-solid fa-trash fa-xs'" aria-hidden="true"></i>
+                                                            </button>
+                                                            </div>
+                                                          </div>
+                                                          <div *ngIf="item_nieto.estado==0" style="display: flex;">
+                                                            <div  style="flex: 1;">
+                                                              <button (click)="event_child('VER',item_nieto)"
+                                                              [title]="'Ver lista de verificación'" class="btn btn-opciones btn-opciones-consultar">
+                                                              <i [ngClass]="options_value.icono_view?options_value.icono_view:'fa fa-eye fa-xs'" aria-hidden="true"></i>
+                                                            </button>
+                                                          </div>
+                                                          </div>
+                                                         </div>
+                                                     </ng-container>
+                                                    <ng-container *ngSwitchDefault>
+                                                      <div [innerHTML]="item_nieto[cell_nieto.key] | dinamico:cell_nieto.pipe"></div>
+                                                      <!-- {{resultados[requestOffsetLeft -1 + i][column.key]}} -->
+                                                    </ng-container>
+                                                  </ng-container>
+                                                </td>
+
+
+                                              </tr>
+                                            </ng-container>
+                                          </tbody>
+                                        </table>
+
+                                      </td>
+                                    </tr>
+                                  </ng-container>
+                                </tbody>
+                              </table>
+                          </div>
+                      </td>
+                    </tr>
+                  </ng-template>
+                </tbody>
+                <!--FINAL ENCABEZADO DE CUERPO-->
+              </table>
+
+            </div>
+            <!--FINAL TABLA-->
+          </mdz-double-scroll>
+        </div>
+      </div>
+      <!--INICIO PIE-->
+      <div *ngIf="options_value.pagination_external; else paginationInternal"
+        [class.hidden]="!options_value.show_widget_footer" class="widget-footer">
+        <div class="row">
+          <div class="col-sm-12">
+            <!--INICIO MOSTRANDO-->
+            <p class="pull-left showing-text">Mostrando <strong>{{pagination_external_value.offset_left}}</strong> -
+              <strong>{{pagination_external_value.offset_right}}</strong> de
+              <strong>{{pagination_external_value.number_records}}</strong> registros.
+            </p>
+            <!--FINAL MOSTRANDO-->
+            <!--INICIO PAGINACION-->
+            <div class="btn-group" role="group">
+              <button (click)="pagination_navigation_external(1)" [disabled]="pagination_external_value.page <=1"
+                class="btn nav-end btn-sm btn-default" type="button">
+                <strong><i class="fas fa-chevron-double-left" aria-hidden="true"></i></strong>
+              </button>
+              <button (click)="pagination_navigation_external(pagination_external_value.page-1)"
+                class="btn btn-sm btn-primary nav-arrow-btn" type="button"
+                [disabled]="pagination_external_value.page <=1">
+                <i class="fas fa-chevron-left" aria-hidden="true"></i>
+              </button>
+              <div class="btn-group">
+                <button *ngFor="let item of pag_reference_external;let i = index"
+                  (click)="pagination_navigation_external(item)" type="button" class="btn nav-btn btn-sm btn-default"
+                  [class.nav-active]="pagination_external_value.page == item">
+                  {{item}}
+                </button>
+              </div>
+              <button (click)="pagination_navigation_external(pagination_external_value.page+1)"
+                class="btn btn-sm btn-primary nav-arrow-btn" type="button"
+                [disabled]="pagination_external_value.page >= page_end">
+                <i class="fas fa-chevron-right" aria-hidden="true"></i>
+              </button>
+              <button (click)="pagination_navigation_external(page_end)"
+                [disabled]="pagination_external_value.page >= page_end" type="button"
+                class="btn nav-end btn-sm btn-default">
+                <strong><i class="fas fa-chevron-double-right" aria-hidden="true"></i></strong>
+              </button>
+            </div>
+            <!--FINAL PAGINACION-->
+          </div>
+        </div>
+      </div>
+
+      <!-- PAGINACION -->
+      <ng-template #paginationInternal>
+        <div [class.hidden]="!options_value.show_widget_footer" class="widget-footer">
+          <div class="row">
+            <div class="col-sm-12">
+              <!--INICIO MOSTRANDO-->
+              <p class="pull-left showing-text">Mostrando <strong>{{requestOffsetLeft}}</strong> -
+                <strong>{{requestOffsetRight}}</strong> de <strong>{{resultados.length}}</strong> registros.
+              </p>
+              <!--FINAL MOSTRANDO-->
+              <!--INICIO PAGINACION-->
+              <div class="d-flex justify-content-end gap-3">
+                <div class="per-page">
+                  <span>Filas por página: </span>
+                  <form #pagination_form="ngForm" style="width: 58px;">
+                    <select class="form-control input-xs bg-transparent border-0"
+                      (ngModelChange)="onChangeSelection($event)" [ngModel]="offsetView" (change)="update_offsets()"
+                      name="pag">
+                      <option *ngFor="let offset of options_value.navigation_offsets">{{offset}}</option>
+                    </select>
+                  </form>
+                </div>
+                <div class="btn-group" role="group">
+                  <!-- <button class="btn btn-sm btn-primary nav-arrow-btn" type="button" (click)="updateRequestsGoLeft()"
+                    [disabled]="requestOffsetLeft <=1">
+                    <i class="fa fa-arrow-left" aria-hidden="true"></i>
+                  </button> -->
+                  <button (click)="pagination_navigation(nav_min_value())" type="button"
+                    class="btn btn-outline-dark btn-sm">
+                    <strong><i class="fa-solid fa-angle-left" aria-hidden="true"></i> </strong>
+                  </button>
+                  <div class="btn-group" *ngFor="let nav of pag_reference;let i = index">
+                    <button *ngIf="nav_show(i + 1)" (click)="pagination_navigation(i+1)" type="button"
+                      class="btn nav-btn btn-sm btn-default" [class.nav-active]="nav_current_value() == i+1">
+                      {{i+1}}
+                    </button>
+                  </div>
+                  <button (click)="pagination_navigation(nav_max_value())" type="button"
+                    class="btn btn-outline-dark btn-sm">
+                    <strong> <i class="fa-sharp fa-solid fa-angle-right" aria-hidden="true"></i></strong>
+                  </button>
+                  <!-- <button class="btn btn-sm btn-primary nav-arrow-btn" type="button" (click)="updateRequestsGoRight()"
+                    [disabled]="requestOffsetRight >= resultados.length">
+                    <i class="fa fa-arrow-right" aria-hidden="true"></i>
+                  </button> -->
+                </div>
+              </div>
+              <!--FINAL PAGINACION-->
+            </div>
+          </div>
+        </div>
+      </ng-template>
+      <!--FINAL PIE-->
+    </div>
+  </ng-container>
+</div>
+<!--FINAL TEMPLATE DATATABLE-->

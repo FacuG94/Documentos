@@ -1,0 +1,12 @@
+version: '3'
+
+services:
+  deploy:
+    env_file: ".env"
+    build:
+      context: .
+      dockerfile: ./Dockerfile
+    restart: always
+    ports:
+     # - '127.0.0.1:4000:80'
+       - "4402:80"
