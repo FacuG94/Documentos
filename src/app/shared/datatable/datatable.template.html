@@ -183,7 +183,7 @@
 
                     <!-- SHOW CHILDRENS -->
                     <ng-container *ngIf="options_value.columns_child_active">
-                      <th scope="col"  class="no-select text-nowrap text-center td-btn-collapse"></th>
+                      <th scope="col"  class="no-select text-nowrap text-center td-btn-collapse primera-columna"></th>
                       <th *ngIf="options_value.columns_headers_child_names.length>1" class="td-btn-collapse"> </th>
                     </ng-container>
 
@@ -207,7 +207,7 @@
                     </ng-container>
                     <th scope="col"
                       *ngIf="options_value.options.puntos || options_value.options.view || options_value.options.edit || options_value.options.delete || options_value.options.word || options_value.options.excel"
-                      class="no-select text-center text-nowrap" style="width:1%;" colspan="3">
+                      class="no-select text-center text-nowrap ultima-columna" colspan="3">
                       {{options_value.options_header}}
                     </th>
                     <!--este titulo Acciones solo se muestra para el cron modal-->
@@ -249,7 +249,7 @@
                       </td>
                       <!-- SHOW BTN CHILDREN -->
                       <ng-container *ngIf="options_value.columns_child_active">
-                        <td (click)="collapseChild(i)" class="mgr-table text-center td-btn-collapse arrow-collapse">
+                        <td (click)="collapseChild(i)" class="mgr-table text-center td-btn-collapse arrow-collapse primera-columna">
                               <i *ngIf="!display_childrens[i] && resultados[requestOffsetLeft -1+i][options_value.columns_headers_child_names[0]].length>0"
                                 class="fa-sharp fa-solid fa-chevron-right"></i>
                               <i *ngIf="display_childrens[i] && resultados[requestOffsetLeft -1+i][options_value.columns_headers_child_names[0]].length>0" class="fa-solid fa-chevron-down"></i>
@@ -258,7 +258,7 @@
                       <!-- td vacio para alinear a los nietos  -->
                       <td *ngIf="options_value.columns_child_active && options_value.columns_headers_child_names.length>1" class="td-btn-collapse"> </td>
                       <!-- INDEX -->
-                      <td *ngIf="options_value.show_number_elements" class="mgr-table text-center width80px">
+                      <td *ngIf="options_value.show_number_elements" class="mgr-table text-center width80">
                         <span>{{i+1}}</span>
                       </td>
 
@@ -430,7 +430,7 @@
                         -->
 
                       <ng-container *ngIf="options_value.dropdown_options; else btnsNormal">
-                        <td>
+                        <td class="ultima-columna">
                           <div class="dropdown dropstart">
                             <button class="btn btn-link text-dark" type="button" data-bs-toggle="dropdown" aria-expanded="false">
                               <i class="fa-solid fa-ellipsis-vertical"></i>
@@ -536,9 +536,9 @@
 
                     <!-- TR DE HIJOS -->
                     <tr *ngIf="display_childrens[i]" class="datatable-data-child">
-                      <td></td>
+                      <td class="primera-columna"></td>
                       <td colspan="100%" class="child px-0">
-                          <div class="w-100" >
+                          <div class="child-table" >
                             <!-- table-responsive -->
                               <table aria-hidden="true" class="table no-margins mgr-dt table-childs">
                                 <tbody >
@@ -550,7 +550,7 @@
                                               [attr.data-bs-target]="'#collapseHijo'+i_child+'_'+i" aria-expanded="false" [attr.aria-controls]="'collapseHijo'+i_child+'_'+i">
                                             </button>
                                       </td>
-                                      <td class="width80px px-5px text-center">{{i+1}}.{{i_child+1}}</td>
+                                      <td class="width80 px-5px text-center">{{i+1}}.{{i_child+1}}</td>
                                       <td *ngFor="let cell_child of options_value.columns_child" [ngClass]="cell_child.classnamebody" >
                                         <ng-container [ngSwitch]="cell_child.pipe">
                                           <div *ngSwitchCase="'estado'" class="d-flex gap-3 align-items-center">
@@ -652,7 +652,7 @@
                                       </td>
 
                                       <ng-container *ngIf="options_value.dropdown_options_child; else btnsNormal_child">
-                                        <td>
+                                        <td class="ultima-columna">
                                           <div class="dropdown dropstart">
                                             <button class="btn btn-link text-dark" type="button" data-bs-toggle="dropdown" aria-expanded="false">
                                               <i class="fa-solid fa-ellipsis-vertical"></i>
@@ -671,7 +671,7 @@
                                       </ng-container>
                                       <ng-template #btnsNormal_child>
                                       <!-- edit normal -->
-                                        <td>
+                                        <td class="ultima-columna">
                                           <div *ngIf="(options_value.options_child.edit)" class="text-center table-edit">
                                               <button (click)="event_child('EDITAR',item_child)" class="btn btn-opciones btn-opciones-edit"
                                               [title]="'Editar'">
@@ -714,7 +714,7 @@
                                           <tbody >
                                             <ng-container *ngFor="let item_nieto of item_child?.[options_value.columns_headers_child_names[1]]; let i_nieto=index">
                                               <tr>
-                                                <td class="width80px px-5px text-center">{{i+1}}.{{i_child+1}}.{{i_nieto+1}}</td>
+                                                <td class="width80 px-5px text-center">{{i+1}}.{{i_child+1}}.{{i_nieto+1}}</td>
 
                                                 <!-- COLUMNAS NIETOS -pipes -->
                                                 <td *ngFor="let cell_nieto of options_value.columns_child_child" [ngClass]="cell_nieto.classnamebody" >
@@ -784,6 +784,58 @@
                                                   </ng-container>
                                                 </td>
 
+                                                <ng-container *ngIf="options_value.dropdown_options_child; else btnsNormal_child">
+                                                  <td class="ultima-columna">
+                                                    <div class="dropdown dropstart">
+                                                      <button class="btn btn-link text-dark" type="button" data-bs-toggle="dropdown" aria-expanded="false">
+                                                        <i class="fa-solid fa-ellipsis-vertical"></i>
+                                                      </button>
+                                                      <ul class="dropdown-menu">
+                                                        <li *ngFor="let item of options_value.dropdown_options_child">
+                                                          <button (click)="dropdownOption(item.action,resultados[requestOffsetLeft -1 + i])" class="dropdown-item btn-labeled" [ngClass]="item.classname" type="button">
+                                                            <span class="btn-label">{{item.label}}</span>
+                                                            <span *ngIf="item.iconsvg" class="btn-icon"></span>
+                                                            <span *ngIf="item.iconclass" class="btn-icon"> <i  class="{{item.iconclass}}" aria-hidden="true"></i> </span>
+                                                          </button>
+                                                        </li>
+                                                      </ul>
+                                                    </div>
+                                                  </td>
+                                                </ng-container>
+                                                <ng-template #btnsNormal_child>
+                                                <!-- edit normal -->
+                                                  <td class="ultima-columna">
+                                                    <div *ngIf="(options_value.options_child.edit)" class="text-center table-edit">
+                                                        <button (click)="event_child('EDITAR',item_child)" class="btn btn-opciones btn-opciones-edit"
+                                                        [title]="'Editar'">
+                                                            <svg width="12" height="12" viewBox="0 0 12 12" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                                              <path d="M8.48533 4.45739L7.54267 3.51472L1.33333 9.72406V10.6667H2.276L8.48533 4.45739ZM9.428 3.51472L10.3707 2.57206L9.428 1.62939L8.48533 2.57206L9.428 3.51472ZM2.828 12.0001H0V9.17139L8.95667 0.214722C9.08169 0.0897416 9.25122 0.0195312 9.428 0.0195312C9.60478 0.0195312 9.77432 0.0897416 9.89933 0.214722L11.7853 2.10072C11.9103 2.22574 11.9805 2.39528 11.9805 2.57206C11.9805 2.74883 11.9103 2.91837 11.7853 3.04339L2.828 12.0001Z" fill="#9A9CA1"/>
+                                                            </svg>
+                                                        </button>
+                                                    </div>
+                                                     <!-- view -->
+                                                     <div *ngIf="options_value.options_child.view" style="display: flex;">
+                                                      <div style="flex: 1;">
+                                                        <button (click)="event_child('VER',item_child)"
+                                                          [title]="'Consultar'" class="btn btn-opciones btn-opciones-consultar">
+                                                          <i [ngClass]="options_value.icono_view?options_value.icono_view:'fa fa-eye fa-xs'" aria-hidden="true"></i>
+                                                        </button>
+                                                      </div>
+                                                      </div>
+                                                    <!-- DELETE NORMAL -->
+                                                    <div *ngIf="(options_value.options_child.delete)" class="text-center table-delete">
+                                                      <button (click)="event_child('ELIMINAR',item_child)"
+                                                      [title]="'Eliminar'" class="btn btn-opciones btn-opciones-delete me-4">
+                                                        <i [ngClass]="options_value.icono_delete?options_value.icono_delete:'far fa-trash-alt fa-xs'" aria-hidden="true"></i>
+                                                      </button>
+                                                    </div>
+
+                                                    <!-- PUNTOS -->
+                                                    <div *ngIf="(options_value.options_child.puntos)" class="text-center">
+                                                      <ng-container [ngTemplateOutlet]="templateContentChild" [ngTemplateOutletContext]="{ $implicit:  item_child, idx: i }"></ng-container>
+                                                    </div>
+                                                  </td>
+                                                </ng-template>
 
                                               </tr>
                                             </ng-container>

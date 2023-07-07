@@ -21,13 +21,13 @@ export class DocumentosComponent implements OnInit {
     mostrar_columns_excel: [false, false],
     mostrar_columns_pdf: [false, false],
     columns_headers: [
-      { key: 'codigo_documento', label: 'Código', show: true },
-      { key: 'nombre_documento', label: 'Nombre', show: true },
-      { key: 'especialidad_nombre', label: 'Especialidad', show: true  },
-      { key: 'tipo_documento_nombre', label: 'Tipo', show: true  },
-      { key: 'fecha_documento', label: 'Fecha', show: true , pipe:'date'},
-      { key: 'numero_version', label: 'Versión Vigente', show: true  },
-      { key: 'estado_nom', label: 'Estado', show: true  },
+      { key: 'codigo_documento', label: 'Código', show: true, classnamebody:'codigo', classname:'codigo'},
+      { key: 'nombre_documento', label: 'Nombre', show: true, classnamebody:"nombre", classname:"nombre" },
+      { key: 'especialidad_nombre', label: 'Especialidad', show: true, classnamebody:"especialidad", classname:"especialidad"},
+      { key: 'tipo_documento_nombre', label: 'Tipo', show: true, classnamebody:"tipo-documento", classname:"tipo-documento"},
+      { key: 'fecha_documento', label: 'Fecha', show: true , pipe:'date', classnamebody:"fecha", classname:"fecha"},
+      { key: 'numero_version', label: 'Versión Vigente', show: true, classnamebody:"version", classname:"version"},
+      { key: 'estado_nom', label: 'Estado', show: true, classnamebody:"estado", classname:"estado"},
     ],
     columns_types: ['text', 'text', 'text', 'text', 'text','number','text'],
     options: { edit: true, view: false, delete: false, puntos: true },
@@ -45,20 +45,30 @@ export class DocumentosComponent implements OnInit {
     // para los hijjos
 
     columns_child_active:true,
-    // columns_headers_child_names:['versiones','itemfake'],//test item fake
-    columns_headers_child_name:'versiones',
+     columns_headers_child_names:['versiones','versiones'],//test item fake
+    //columns_headers_child_name:'versiones',
     columns_child: [
      // { key: 'nombre_division', label: 'Clase', show: true, classnamebody:'width600px' },
-      { key: 'codigo_documento', label: 'Código', show: true },
-      { key: 'nombre_documento', label: 'Nombre', show: true},
-      { key: 'especialidad_nombre', label: 'Especialidad', show: true },
-      { key: 'tipo_documento_nombre', label: 'Tipo', show: true },
-      { key: 'fecha_documento', label: 'Fecha', show: true, pipe:'date' },
-      { key: 'numero_version', label: 'Versión Vigente', show: true },
-      { key: 'estado_nom', label: 'Estado', show: true }
+      { key: 'codigo_documento', label: 'Código', show: true, classnamebody:'codigo' },
+      { key: 'nombre_documento', label: 'Nombre', show: true, classnamebody:'nombre'},
+      { key: 'especialidad_nombre', label: 'Especialidad', show: true, classnamebody:'especialidad' },
+      { key: 'tipo_documento_nombre', label: 'Tipo', show: true, classnamebody:'tipo-documento' },
+      { key: 'fecha_documento', label: 'Fecha', show: true, pipe:'date', classnamebody:'fecha' },
+      { key: 'numero_version', label: 'Versión Vigente', show: true, classnamebody:'version' },
+      { key: 'estado_nom', label: 'Estado', show: true, classnamebody:'estado' }
     ],
     options_child: { edit: false, view: true, delete: false,puntos: false},
 
+    columns_child_child: [
+      // { key: 'nombre_division', label: 'Clase', show: true, classnamebody:'width600px' },
+       { key: 'codigo_documento', label: 'Código', show: true, classnamebody:'codigo' },
+       { key: 'nombre_documento', label: 'Nombre', show: true, classnamebody:'nombre'},
+       { key: 'especialidad_nombre', label: 'Especialidad', show: true, classnamebody:'especialidad' },
+       { key: 'tipo_documento_nombre', label: 'Tipo', show: true, classnamebody:'tipo-documento' },
+       { key: 'fecha_documento', label: 'Fecha', show: true, pipe:'date', classnamebody:'fecha' },
+       { key: 'numero_version', label: 'Versión Vigente', show: true, classnamebody:'version' },
+       { key: 'estado_nom', label: 'Estado', show: true, classnamebody:'estado' }
+     ],
 
     options_header: '',
     navigation_offsets: [5, 10, 15, 20, 50, 100, 200, 500, 1000, 2000],
@@ -129,7 +139,49 @@ export class DocumentosComponent implements OnInit {
             "eliminado": 0,
             "tipo_documento": 1,
             "especialidad": 1,
-            "documento": 28
+            "documento": 28,
+            "versiones": [
+              {
+                "id_version_documento": 42,
+                "estado_nom": "Vigente",
+                "tipo_documento_nombre": "Tipo NIETO",
+                "especialidad_nombre": "ESPECIALIDAD NIETO",
+                "nombre_documento": "DOCUMENTO NIETO",
+                "codigo_documento": "NIETO",
+                "comentario": null,
+                "fecha_documento": "2023-03-31",
+                "numero_version": 7,
+                "documento_general": null,
+                "sesion_id": null,
+                "fecha_creacion": "2023-04-04T18:21:28.045701Z",
+                "fecha_actualizacion": null,
+                "estado": 0,
+                "eliminado": 0,
+                "tipo_documento": 1,
+                "especialidad": 1,
+                "documento": 28,
+              },
+              {
+                "id_version_documento": 42,
+                "estado_nom": "No Vigente",
+                "tipo_documento_nombre": "Tipo NIETA",
+                "especialidad_nombre": "Especialidad NIETA",
+                "nombre_documento": "DOCUMENTO NIETA",
+                "codigo_documento": "NIETA",
+                "comentario": null,
+                "fecha_documento": "2023-03-31",
+                "numero_version": 8,
+                "documento_general": null,
+                "sesion_id": null,
+                "fecha_creacion": "2023-04-04T18:21:28.045701Z",
+                "fecha_actualizacion": null,
+                "estado": 0,
+                "eliminado": 0,
+                "tipo_documento": 1,
+                "especialidad": 1,
+                "documento": 28,
+              }
+            ]
           },
           {
             "id_version_documento": 41,

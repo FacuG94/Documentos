@@ -6,10 +6,10 @@ export class DataTableOptionsModel {
     this.ConfigurationOptions = opt;
     //console.log('opt.columns_headers_child_name',opt.columns_headers_child_name);
     if (typeof opt.columns_headers_child_name === 'string') {
-      this.columns_headers_child_names.push(opt.columns_headers_child_name)
+      this.columns_headers_child_names.push(opt.columns_headers_child_name);
       //console.log('columns_headers_child_name',this.columns_headers_child_name);
     }
-    
+
   }
   private ConfigurationOptions: any = null;
 
@@ -92,7 +92,7 @@ export class DataTableOptionsModel {
   title_puntos: string = '';
   icono_puntos: string = 'fa fa-ellipsis-v';
   title_delete: string = '';
-  icono_delete: string = '';  
+  icono_delete: string = '';
   icono_delete_opcional: string = '';
   color_delete_hex: string = '';
   title_delete_opcional: string = '';

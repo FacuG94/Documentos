@@ -229,7 +229,47 @@ td.child {
 }
 .width80 {
   width: 80px;
+  min-width: 50px
 }
+
+.codigo {
+  width: 180px;
+  min-width: 90px
+}
+.nombre {
+  width: 440px;
+  min-width: 220px;
+}
+.especialidad {
+  width: 300px;
+  min-width: 180px;
+}
+.tipo-documento {
+  width: 200px;
+  min-width: 150px;
+}
+.fecha {
+  width: 230px;
+  min-width: 160px;
+}
+.version {
+  width: 200px;
+  min-width: 150px;
+}
+.estado {
+  width: 180px;
+  min-width: 100px;
+}
+
+.ultima-columna {
+  width: 100px;
+  min-width: 55px;
+}
+
+.child-table {
+  //width: 99%;
+}
+
 
 .mgr-pagination-external .btn-group > .nav-arrow-btn,
 .mgr-pagination-external .btn-group > .nav-end {
@@ -699,7 +739,7 @@ $witdhs: (20px,25px,45px,50px,60px,65px,80px,90px,100px,105px,120px,140px,150px,
   background: #E9ECEF;
 }
 
-.background-one .evaluacion-resultado, 
+.background-one .evaluacion-resultado,
 .background-two .evaluacion-resultado{
   background: #C8CBD0;
 }
